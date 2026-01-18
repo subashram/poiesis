@@ -1,0 +1,47 @@
+# Poiesis - Git Ignore
+
+# Local state (don't share between developers)
+workflow_state.json
+
+# Generated artifacts (regenerate, don't commit)
+artifacts/
+review/
+redteam/
+qa/
+exports/
+
+# Keep done/ - these are approved artifacts worth committing
+# done/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.local
+
+# Logs
+*.log
+logs/

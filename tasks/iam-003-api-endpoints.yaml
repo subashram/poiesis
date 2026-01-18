@@ -1,0 +1,104 @@
+id: iam-003-api-endpoints
+title: IAM REST API Endpoints
+description: FastAPI endpoints for IAM operations
+agent_type: developer
+task_type: implementation
+depends_on:
+  - iam-001-domain-model
+  - iam-002-rbac-engine
+requires_review: true
+requires_human_approval: true
+requires_redteam: true  # API surface is security-critical
+
+input_contract: |
+  From iam-001-domain-model:
+  - User, Role, Permission Pydantic models
+  - SQLAlchemy models for persistence
+  
+  From iam-002-rbac-engine:
+  - RBACEngine.can(user, action, resource)
+  - RBACEngine.assign_role(user, role)
+  - RBACEngine.revoke_role(user, role)
+
+output_contract: |
+  FastAPI application with:
+  
+  User endpoints:
+  - POST   /tenants/{tenant_id}/users
+  - GET    /tenants/{tenant_id}/users
+  - GET    /tenants/{tenant_id}/users/{user_id}
+  - PATCH  /tenants/{tenant_id}/users/{user_id}
+  - DELETE /tenants/{tenant_id}/users/{user_id}
+  
+  Role endpoints:
+  - POST   /tenants/{tenant_id}/roles
+  - GET    /tenants/{tenant_id}/roles
+  - GET    /tenants/{tenant_id}/roles/{role_id}
+  - PUT    /tenants/{tenant_id}/roles/{role_id}
+  - DELETE /tenants/{tenant_id}/roles/{role_id}
+  
+  Role assignment:
+  - POST   /tenants/{tenant_id}/users/{user_id}/roles
+  - DELETE /tenants/{tenant_id}/users/{user_id}/roles/{role_id}
+  - GET    /tenants/{tenant_id}/users/{user_id}/permissions
+  
+  Authorization:
+  - POST   /authorize (check if user can perform action)
+  
+  All endpoints must:
+  - Use Pydantic for request/response
+  - Return proper HTTP status codes
+  - Enforce tenant isolation
+  - Have OpenAPI documentation
+
+acceptance_criteria:
+  - All endpoints implemented with proper HTTP methods
+  - Tenant isolation enforced (users can't access other tenants)
+  - Input validation on all requests
+  - Consistent error response format
+  - OpenAPI schema is complete
+  - Authentication dependency is defined (even if placeholder)
+
+prompt: |
+  Create REST API endpoints for the IAM system using FastAPI.
+  
+  ## Endpoints Required
+  
+  ### User Management
+  - `POST /tenants/{tenant_id}/users` - Create user
+  - `GET /tenants/{tenant_id}/users` - List users
+  - `GET /tenants/{tenant_id}/users/{user_id}` - Get user
+  - `PATCH /tenants/{tenant_id}/users/{user_id}` - Update user
+  - `DELETE /tenants/{tenant_id}/users/{user_id}` - Delete user
+  
+  ### Role Management
+  - `POST /tenants/{tenant_id}/roles` - Create role
+  - `GET /tenants/{tenant_id}/roles` - List roles
+  - `GET /tenants/{tenant_id}/roles/{role_id}` - Get role with permissions
+  - `PUT /tenants/{tenant_id}/roles/{role_id}` - Update role
+  - `DELETE /tenants/{tenant_id}/roles/{role_id}` - Delete role
+  
+  ### Role Assignment
+  - `POST /tenants/{tenant_id}/users/{user_id}/roles` - Assign role
+  - `DELETE /tenants/{tenant_id}/users/{user_id}/roles/{role_id}` - Revoke role
+  - `GET /tenants/{tenant_id}/users/{user_id}/permissions` - Get effective permissions
+  
+  ### Authorization Check
+  - `POST /authorize` - Check if user can perform action
+  
+  ## Requirements
+  1. Use Pydantic for request/response models
+  2. Proper HTTP status codes (201 for create, 204 for delete, etc.)
+  3. OpenAPI documentation
+  4. Input validation
+  5. Error handling with consistent format
+  6. Tenant isolation (users can only access their tenant)
+  
+  ## Deliverables
+  1. FastAPI router with all endpoints
+  2. Request/Response Pydantic models
+  3. Dependency injection setup
+  4. Example curl commands
+  5. OpenAPI schema documentation
+  
+  Integrate with the domain models and RBAC engine from previous tasks.

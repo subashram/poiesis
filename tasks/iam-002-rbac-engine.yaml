@@ -1,0 +1,88 @@
+id: iam-002-rbac-engine
+title: Implement RBAC Engine
+description: Core authorization engine with role-based access control
+agent_type: developer
+task_type: implementation
+depends_on:
+  - iam-001-domain-model
+requires_review: true
+requires_human_approval: true
+requires_redteam: true
+requires_qa: true
+
+# Feedback Loop Configuration
+loop:
+  enabled: true
+  max_iterations: 3
+  require_reviewer: true
+  require_qa: true
+  require_redteam: true
+  min_review_score: 0.7
+  qa_must_pass: true
+  redteam_max_critical: 0
+
+input_contract: |
+  From iam-001-domain-model:
+  - User model with: id, tenant_id, roles[]
+  - Role model with: id, name, permissions[]
+  - Permission format: resource:action
+  - Support for wildcard (*) in permissions
+
+output_contract: |
+  RBACEngine class with:
+  - can(user, action, resource) -> bool
+  - get_permissions(user) -> set[str]
+  - assign_role(user, role) -> None
+  - revoke_role(user, role) -> None
+  
+  PermissionResolver class with:
+  - resolve(user) -> set[Permission]
+  - supports caching interface
+  
+  Guarantees:
+  - Deny always overrides allow
+  - Wildcard expansion works (vm:* includes vm:create)
+  - O(1) permission checks after initial load
+
+acceptance_criteria:
+  - Permission checks are O(1) after initial resolution
+  - Deny policies override allow policies
+  - Wildcards expand correctly
+  - Tenant isolation is enforced
+  - Role hierarchy is supported
+  - Caching interface is defined
+
+prompt: |
+  Implement an RBAC (Role-Based Access Control) engine based on the domain model.
+  
+  ## Requirements
+  
+  ### Core Functionality
+  1. **Permission Checking**
+     - `can(user, action, resource) -> bool`
+     - Support wildcard permissions (e.g., `vm:*`)
+     - Deny takes precedence over allow
+  
+  2. **Role Assignment**
+     - Assign/revoke roles from users
+     - Support role inheritance (role can include other roles)
+     - Validate tenant boundaries
+  
+  3. **Permission Resolution**
+     - Efficiently resolve all permissions for a user
+     - Cache resolved permissions
+     - Handle role hierarchy
+  
+  ### Performance Requirements
+  - Permission checks must be O(1) after initial load
+  - Support caching layer (abstract interface)
+  - Lazy loading of role hierarchies
+  
+  ### Deliverables
+  1. `RBACEngine` class with core methods
+  2. `PermissionResolver` for computing effective permissions
+  3. Caching interface and in-memory implementation
+  4. Unit tests for all edge cases
+  5. Usage examples
+  
+  Build on the domain models from the previous task (available in context).

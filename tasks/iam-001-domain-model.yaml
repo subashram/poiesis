@@ -1,0 +1,58 @@
+id: iam-001-domain-model
+title: Define IAM Domain Model
+description: Create the core domain models for the IAM system
+agent_type: developer
+task_type: implementation
+depends_on: []
+requires_review: true
+requires_human_approval: true
+requires_redteam: false
+
+input_contract: |
+  Design documents from design/iam-architecture.md:
+  - Domain model diagram
+  - Entity relationships
+  - Permission format (resource:action)
+
+output_contract: |
+  Python code with:
+  - Pydantic models for: Tenant, User, Role, Permission, Policy
+  - SQLAlchemy models for persistence
+  - Entity relationship diagram (mermaid)
+  - Validation logic
+  - Example instantiation
+
+acceptance_criteria:
+  - All entities have proper type hints
+  - Validation prevents invalid states
+  - Relationships correctly modeled
+  - Tenant isolation enforced at model level
+
+prompt: |
+  Design the core domain model for a multi-tenant IAM system for a Cloud Management Platform.
+  
+  ## Requirements
+  
+  ### Core Entities
+  1. **Tenant** - Isolated customer/organization
+  2. **User** - Individual identity within a tenant
+  3. **Role** - Named collection of permissions
+  4. **Permission** - Specific action on a resource type
+  5. **Resource** - Something that can be acted upon
+  6. **Policy** - Rules that grant/deny access
+  
+  ### Constraints
+  - Users belong to exactly one tenant
+  - Roles are tenant-scoped (each tenant has their own roles)
+  - System roles can be defined at platform level
+  - Permissions follow format: `resource:action` (e.g., `vm:create`, `network:read`)
+  - Support both allow and deny policies
+  
+  ### Deliverables
+  1. Python dataclasses/Pydantic models for each entity
+  2. SQLAlchemy models for persistence
+  3. Entity relationship diagram (in mermaid format)
+  4. Validation logic for each model
+  5. Example instantiation code
+  
+  Use Python with type hints. Follow clean architecture principles.
