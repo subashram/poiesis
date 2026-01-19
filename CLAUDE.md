@@ -15,9 +15,15 @@ Key capabilities:
 ## Commands
 
 ```bash
-# Setup
+# Setup (Anthropic - default)
 pip install -r requirements.txt
 export ANTHROPIC_API_KEY=your-key-here
+
+# Setup (OpenAI-compatible API)
+pip install -r requirements.txt
+export LLM_PROVIDER=openai
+export OPENAI_API_KEY=your-key-here
+export OPENAI_BASE_URL=http://localhost:11434/v1  # Optional, for Ollama/vLLM/etc.
 
 # Core workflow
 python cli.py status                    # Show workflow status
@@ -48,14 +54,23 @@ python cli.py export-done               # Export approved artifacts
 ```
 cli.py                 # CLI interface - parses commands, calls WorkflowEngine
 src/engine.py          # WorkflowEngine - orchestrates agents, manages state, runs feedback loops
-src/llm_client.py      # LLMClient - Anthropic API wrapper
+src/llm_client.py      # LLMClient - multi-provider LLM wrapper (Anthropic + OpenAI-compatible)
 src/context_retriever.py # ContextRetriever - smart context loading (keyword + TF-IDF)
-src/models.py          # Data models (Task, LoopConfig, LoopState, WorkflowState)
+src/models.py          # Data models (Task, LoopConfig, LoopState, WorkflowState, AgentConfig)
 ```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | `anthropic` | Global provider: `anthropic` or `openai` |
+| `ANTHROPIC_API_KEY` | - | Anthropic API key |
+| `OPENAI_API_KEY` | - | OpenAI-compatible API key |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Base URL for OpenAI-compatible API |
 
 ### Agent Configuration
 
-Agents are defined in `config/*.yaml` with system prompts, temperature, and model settings:
+Agents are defined in `config/*.yaml` with system prompts, temperature, model settings, and optional provider overrides:
 
 | Agent | File | Purpose |
 |-------|------|---------|
@@ -148,3 +163,9 @@ Two modes based on document size:
 - **Domain knowledge:** Add markdown files to `design/`
 - **Tasks:** Add YAML files to `tasks/`
 - **Contracts:** Add markdown files to `contracts/`
+- **Per-agent provider override:** Add `provider` and `api_base_url` fields to agent YAML configs:
+  ```yaml
+  provider: openai
+  api_base_url: http://localhost:11434/v1  # for Ollama
+  model: llama3.1:70b
+  ```

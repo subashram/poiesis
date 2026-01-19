@@ -17,24 +17,24 @@ The engine uses a single generic Developer Agent that adapts to any domain based
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                       POIESIS                                │
+│                       POIESIS                               │
 ├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  📜 CONTRACT AGENT       Define interfaces BEFORE building   │
-│         ↓                                                    │
-│  📊 PLANNER AGENT        Decompose goals into atomic tasks   │
-│         ↓                                                    │
+│                                                             │
+│  📜 CONTRACT AGENT       Define interfaces BEFORE building  │
+│         ↓                                                   │
+│  📊 PLANNER AGENT        Decompose goals into atomic tasks  │
+│         ↓                                                   │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │              🔄 FEEDBACK LOOP                        │    │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌───────┐  │    │
-│  │  │DEVELOPER│─►│REVIEWER │─►│RED TEAM │─►│  QA   │  │    │
-│  │  └─────────┘  └─────────┘  └─────────┘  └───────┘  │    │
+│  │              🔄 FEEDBACK LOOP                       │    │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌───────┐   │    │
+│  │  │DEVELOPER│─►│REVIEWER │─►│RED TEAM │─►│  QA   │   │    │
+│  │  └─────────┘  └─────────┘  └─────────┘  └───────┘   │    │
 │  │       ▲                                     │       │    │
 │  │       └─────── Feedback if not pass ────────┘       │    │
 │  └─────────────────────────────────────────────────────┘    │
-│         ↓ All pass                                           │
-│  👤 YOU                   Final approval                     │
-│                                                              │
+│         ↓ All pass                                          │
+│  👤 YOU                   Final approval                    │
+│                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,6 +74,66 @@ python cli.py run-next
 python cli.py review
 python cli.py approve <task-id>
 ```
+
+---
+
+## Provider Configuration
+
+Poiesis supports multiple LLM providers: Anthropic (default) and any OpenAI-compatible API (OpenAI, Ollama, vLLM, Together, Groq, etc.).
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | `anthropic` | Global provider: `anthropic` or `openai` |
+| `ANTHROPIC_API_KEY` | - | Anthropic API key |
+| `OPENAI_API_KEY` | - | OpenAI-compatible API key |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Base URL for OpenAI-compatible API |
+
+### Using Different Providers
+
+**Anthropic (default):**
+```bash
+export ANTHROPIC_API_KEY=your-anthropic-key
+python cli.py run-next
+```
+
+**OpenAI:**
+```bash
+export LLM_PROVIDER=openai
+export OPENAI_API_KEY=your-openai-key
+python cli.py run-next
+```
+
+**Ollama (local):**
+```bash
+export LLM_PROVIDER=openai
+export OPENAI_BASE_URL=http://localhost:11434/v1
+export OPENAI_API_KEY=ollama  # Ollama doesn't require a real key
+# Update model in agent config to e.g., "llama3.1:70b"
+python cli.py run-next
+```
+
+### Per-Agent Provider Override
+
+You can mix providers by setting `provider` and `api_base_url` in agent configs:
+
+```yaml
+# config/my-local-agent.yaml
+name: local-developer
+agent_type: developer
+provider: openai
+api_base_url: http://localhost:11434/v1
+model: llama3.1:70b
+system_prompt: |
+  You are a developer...
+```
+
+### Provider Priority
+
+1. Agent YAML config `provider` field (if set)
+2. Environment variable `LLM_PROVIDER`
+3. Default: `anthropic`
 
 ---
 

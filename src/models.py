@@ -145,7 +145,10 @@ class AgentConfig:
     system_prompt: str
     temperature: float = 0.7
     max_tokens: int = 4096
-    
+    # Provider configuration (optional - uses global default if not set)
+    provider: Optional[str] = None      # "anthropic" or "openai" (None = use global default)
+    api_base_url: Optional[str] = None  # Custom endpoint (e.g., "http://localhost:11434/v1" for Ollama)
+
     @classmethod
     def from_dict(cls, data: dict) -> "AgentConfig":
         return cls(
@@ -155,6 +158,8 @@ class AgentConfig:
             system_prompt=data["system_prompt"],
             temperature=data.get("temperature", 0.7),
             max_tokens=data.get("max_tokens", 4096),
+            provider=data.get("provider"),
+            api_base_url=data.get("api_base_url"),
         )
 
 
